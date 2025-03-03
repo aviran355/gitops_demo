@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment
+  namespace: default  # <-- Add this line
   labels:
     app: nginx
 spec:
@@ -19,3 +20,4 @@ spec:
         image: nginx:latest
         ports:
         - containerPort: 80
+
