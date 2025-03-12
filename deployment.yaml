@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: docker.io/your-dockerhub-user/my-app:latest  # <-- Update with your built image
+          image: docker.io/aviranmashiach/my-image
           ports:
             - containerPort: 80
 ---
