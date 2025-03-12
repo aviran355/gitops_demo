@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: kubectl
+  namespace: default
+spec:
+  description: >-
+    This task runs `kubectl` commands.
+  params:
+    - name: script
+      type: string
+      description: The shell script to execute using kubectl.
+  steps:
+    - name: run-kubectl
+      image: bitnami/kubectl:latest
+      script: |
+        #!/bin/sh
+        set -ex
+        $(params.script)
+

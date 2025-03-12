@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: setup-git-ssh
+  namespace: default
+spec:
+  steps:
+    - name: configure-ssh
+      image: debian:latest  # Using Debian instead of Alpine
+      script: |
+        #!/bin/sh
+        echo "Installing SSH tools..."
+        apt-get update && apt-get install -y openssh-client
+        echo "Configuring SSH"
+        mkdir -p /root/.ssh
+        cp /ssh/ssh-privatekey /root/.ssh/id_rsa
+        chmod 600 /root/.ssh/id_rsa
+        ssh-keyscan github.com >> /root/.ssh/known_hosts
+      volumeMounts:
+        - name: ssh-credentials
+          mountPath: "/ssh"
+          readOnly: true
+  volumes:
+    - name: ssh-credentials
+      secret:
+        secretName: ssh-credentials
+

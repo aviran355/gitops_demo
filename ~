@@ -1,0 +1,52 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-deploy
+  namespace: default
+spec:
+  params:
+    - name: git-url
+      type: string
+    - name: image-url
+      type: string
+  workspaces:
+    - name: output  # Define a workspace that will be used in tasks
+  tasks:
+    - name: fetch-source
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: url
+          value: "$(params.git-url)"
+        - name: revision
+          value: "main"
+
+    - name: build-image
+      taskRef:
+        name: buildah
+      runAfter:
+        - fetch-source
+      workspaces:
+        - name: source
+          workspace: output
+      params:
+        - name: IMAGE
+          value: "$(params.image-url)"
+        - name: DOCKERFILE
+          value: "Dockerfile"
+        - name: CONTEXT
+          value: "."
+
+    - name: deploy-app
+      taskRef:
+        name: kubectl
+      runAfter:
+        - build-image
+      params:
+        - name: script
+          value: |
+            kubectl apply -f k8s/deployment.yaml -n default
+
